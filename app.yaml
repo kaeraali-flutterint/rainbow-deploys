@@ -34,6 +34,10 @@ spec:
       labels:
         app: rainbow-deploys
         color: __COLOR__
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8080"
+        prometheus.io/scrape: "true"
     spec:
       containers:
       - name: rainbow-deploy
@@ -41,3 +45,23 @@ spec:
         ports:
         - containerPort: 8080
         - containerPort: 8081
+---
+ # https://kubernetes.io/docs/concepts/services-networking/ingress/
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: example-ingress
+  spec:
+    ingressClassName: "nginx"
+    rules:
+    - host: example.foo.com
+      http:
+        paths:
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: rainbow-deploys
+              port:
+                number: 8080
+  
